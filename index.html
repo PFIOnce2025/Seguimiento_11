@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consulta de Calificaciones - IEM Técnico Industrial</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React + Babel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div id="root"></div>
+
+  <!-- Tu archivo con los datos -->
+  <script src="datos_notas.js"></script>
+
+  <script type="text/babel">
+    const gradeDescriptions = {
+      DS: "Desempeño Superior",
+      DA: "Desempeño Alto",
+      DB: "Desempeño Básico",
+      DBJ: "Desempeño Bajo"
+    };
+
+    const GradeDisplay = ({ student, grades }) => (
+      <div className="mt-6 p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">Calificaciones de {student}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(grades).map(([subject, grade]) => (
+            subject !== "Estudiante" && subject !== "mRep" && subject !== "pEst" && (
+              <div key={subject} className="p-4 bg-gray-50 rounded-md">
+                <span className="font-semibold text-gray-700">{subject}:</span>
+                <span className="ml-2 text-gray-600">{gradeDescriptions[grade] || grade}</span>
+              </div>
+            )
+          ))}
+        </div>
+        <div className="mt-4">
+          <p className="text-lg"><span className="font-semibold">Materias Reprobadas:</span> {grades.mRep === "-" ? "0" : grades.mRep}</p>
+          <p className="text-lg"><span className="font-semibold">Promedio Estudiante:</span> {grades.pEst}</p>
+        </div>
+      </div>
+    );
+
+    const App = () => {
+      const [selectedGroup, setSelectedGroup] = React.useState("");
+      const [selectedStudent, setSelectedStudent] = React.useState("");
+      const [studentGrades, setStudentGrades] = React.useState(null);
+
+      const handleGroupChange = (e) => {
+        setSelectedGroup(e.target.value);
+        setSelectedStudent("");
+        setStudentGrades(null);
+      };
+
+      const handleStudentChange = (e) => {
+        const studentName = e.target.value;
+        setSelectedStudent(studentName);
+        const studentData = datosNotas[selectedGroup].find(student => student.Estudiante === studentName);
+        setStudentGrades(studentData);
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto p-6">
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Consulta de Calificaciones</h1>
+          <p className="text-center text-gray-600 mb-4">Período: 2 de 2024</p>
+          <div className="flex flex-col space-y-4">
+            <div>
+              <label htmlFor="group" className="block text-sm font-medium text-gray-700">Seleccionar Grupo:</label>
+              <select
+                id="group"
+                value={selectedGroup}
+                onChange={handleGroupChange}
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Seleccione un grupo</option>
+                {Object.keys(datosNotas).map(group => (
+                  <option key={group} value={group}>{group}</option>
+                ))}
+              </select>
+            </div>
+            {selectedGroup && (
+              <div>
+                <label htmlFor="student" className="block text-sm font-medium text-gray-700">Seleccionar Estudiante:</label>
+                <select
+                  id="student"
+                  value={selectedStudent}
+                  onChange={handleStudentChange}
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Seleccione un estudiante</option>
+                  {datosNotas[selectedGroup].map(student => (
+                    <option key={student.Estudiante} value={student.Estudiante}>{student.Estudiante}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+          {studentGrades && <GradeDisplay student={selectedStudent} grades={studentGrades} />}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
