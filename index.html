@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seguimiento de Notas - Grado 11</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 2rem; }
+    table { font-size: 0.9rem; }
+    th, td { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <h2 class="mb-4">📚 Seguimiento de Notas - Estudiantes de Grado 11</h2>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="cursoSelect" class="form-label">Filtrar por curso:</label>
+      <select id="cursoSelect" class="form-select">
+        <option value="">Todos</option>
+        <option value="1101">1101</option>
+        <option value="1102">1102</option>
+        <option value="1103">1103</option>
+        <option value="1104">1104</option>
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label for="estudianteInput" class="form-label">Buscar estudiante:</label>
+      <input type="text" id="estudianteInput" class="form-control" placeholder="Nombre completo o parte">
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped" id="tablaNotas">
+      <thead class="table-dark" id="encabezadoTabla"></thead>
+      <tbody id="cuerpoTabla"></tbody>
+    </table>
+  </div>
+
+  <!-- Cargar el archivo que contiene los datos en formato JS -->
+  <script src="datos_notas.js"></script>
+
+  <script>
+    function mostrarTabla() {
+      const cursoSeleccionado = document.getElementById('cursoSelect').value;
+      const estudianteFiltro = document.getElementById('estudianteInput').value.toLowerCase();
+      const cuerpo = document.getElementById('cuerpoTabla');
+      const encabezado = document.getElementById('encabezadoTabla');
+      cuerpo.innerHTML = "";
+      encabezado.innerHTML = "";
+
+      let encabezadoEscrito = false;
+
+      Object.entries(datosNotas).forEach(([curso, registros]) => {
+        if (cursoSeleccionado && cursoSeleccionado !== curso) return;
+
+        const cabecera = registros.find(fila => fila["IEM Instituto Técnico Industrial"] === "Estudiante");
+        if (!cabecera) return;
+
+        const claves = Object.keys(cabecera);
+        const titulos = Object.values(cabecera);
+
+        if (!encabezadoEscrito) {
+          const ths = titulos.map(t => `<th>${t}</th>`).join('');
+          encabezado.innerHTML = `<tr><th>Curso</th>${ths}</tr>`;
+          encabezadoEscrito = true;
+        }
+
+        registros.forEach(fila => {
+          const nombre = fila["IEM Instituto Técnico Industrial"];
+          if (!nombre || nombre === "Estudiante" || nombre === "TOTALES" || nombre.startsWith("Fecha")) return;
+          if (estudianteFiltro && !nombre.toLowerCase().includes(estudianteFiltro)) return;
+
+          const tds = claves.map(k => `<td>${fila[k] ?? ''}</td>`).join('');
+          cuerpo.innerHTML += `<tr><td>${curso}</td>${tds}</tr>`;
+        });
+      });
+    }
+
+    // Filtros activos
+    document.getElementById('cursoSelect').addEventListener('change', mostrarTabla);
+    document.getElementById('estudianteInput').addEventListener('input', mostrarTabla);
+
+    // Mostrar la tabla al cargar la página
+    mostrarTabla();
+  </script>
+</body>
+</html>
