@@ -14,7 +14,7 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
   <div id="root"></div>
 
-  <!-- Tu archivo con los datos -->
+  <!-- Tu archivo de datos -->
   <script src="datos_notas.js"></script>
 
   <script type="text/babel">
@@ -30,7 +30,7 @@
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Calificaciones de {student}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(grades).map(([subject, grade]) => (
-            subject !== "Estudiante" && subject !== "mRep" && subject !== "pEst" && (
+            subject !== "IEM Instituto Técnico Industrial" && subject !== "mRep" && subject !== "pEst" && (
               <div key={subject} className="p-4 bg-gray-50 rounded-md">
                 <span className="font-semibold text-gray-700">{subject}:</span>
                 <span className="ml-2 text-gray-600">{gradeDescriptions[grade] || grade}</span>
@@ -59,7 +59,9 @@
       const handleStudentChange = (e) => {
         const studentName = e.target.value;
         setSelectedStudent(studentName);
-        const studentData = datosNotas[selectedGroup].find(student => student.Estudiante === studentName);
+        const studentData = datosNotas[selectedGroup]
+          .slice(3) // Omitir cabeceras
+          .find(student => student["IEM Instituto Técnico Industrial"] === studentName);
         setStudentGrades(studentData);
       };
 
@@ -92,14 +94,26 @@
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Seleccione un estudiante</option>
-                  {datosNotas[selectedGroup].map(student => (
-                    <option key={student.Estudiante} value={student.Estudiante}>{student.Estudiante}</option>
-                  ))}
+                  {datosNotas[selectedGroup]
+                    .slice(3)
+                    .map(student => (
+                      <option
+                        key={student["IEM Instituto Técnico Industrial"]}
+                        value={student["IEM Instituto Técnico Industrial"]}
+                      >
+                        {student["IEM Instituto Técnico Industrial"]}
+                      </option>
+                    ))}
                 </select>
               </div>
             )}
           </div>
-          {studentGrades && <GradeDisplay student={selectedStudent} grades={studentGrades} />}
+          {studentGrades && (
+            <GradeDisplay
+              student={selectedStudent}
+              grades={studentGrades}
+            />
+          )}
         </div>
       );
     };
